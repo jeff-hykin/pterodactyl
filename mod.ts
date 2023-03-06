@@ -79,6 +79,7 @@ let entryPoint = 'index.html'
 let before: Array<Interceptor> | Interceptor
 let after: Array<Interceptor> | Interceptor
 
+// is caught
 const handleFileRequest = async (req: ServerRequest) => {
   try {
     const path = joinPath(root, req.url)
@@ -86,6 +87,7 @@ const handleFileRequest = async (req: ServerRequest) => {
     req.done.then(() => {
       file.close()
     })
+    // is caught 
     return await req.respond({
       status: 200,
       headers: setHeaders(cors, path),
@@ -93,14 +95,17 @@ const handleFileRequest = async (req: ServerRequest) => {
     })
   } catch (err) {
     !silent && debug ? console.error(err) : error(err.message)
-    handleNotFound(req)
+    // is caught
+    await handleNotFound(req)
   }
 }
 
+// is caught
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
   try {
     const file = await readFile(`${root}/${entryPoint}`)
     const { hostname, port } = req.conn.localAddr as Deno.NetAddr
+    // is caught
     await req.respond({
       status: 200,
       headers: setHeaders(cors),
@@ -110,10 +115,12 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     })
   } catch (err) {
     !silent && debug ? console.error(err) : error(err.message)
-    handleDirRequest(req)
+    // is caught
+    await handleDirRequest(req)
   }
 }
 
+// is caught
 const handleDirRequest = async (req: ServerRequest): Promise<void> => {
   const path = joinPath(root, req.url)
   const dirUrl = `/${posix.relative(root, path)}`
@@ -153,6 +160,7 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
   }
 }
 
+// is caught
 const handleNotFound = async (req: ServerRequest): Promise<void> => {
   return req.respond({
     status: 404,
@@ -171,7 +179,8 @@ const router = async (req: ServerRequest): Promise<void> => {
       return await handleWs(req)
     }
     if (req.method === 'GET' && req.url === '/') {
-      return handleRouteRequest(req)
+      // is caught
+      return await handleRouteRequest(req)
     }
     const path = joinPath(root, req.url)
     if (isRoute(path)) {
@@ -180,18 +189,25 @@ const router = async (req: ServerRequest): Promise<void> => {
           const fileInfo = await Deno.stat(path)
 
           if (fileInfo.isDirectory) {
-            return handleDirRequest(req)
+            // is caught
+            return await handleDirRequest(req)
           }
         } catch (err) {
           throw err
         }
       }
-      return handleRouteRequest(req)
+      // is caught
+      return await handleRouteRequest(req)
     }
 
-    return handleFileRequest(req)
+    return await handleFileRequest(req)
   } catch (err) {
-    err instanceof Deno.errors.NotFound && handleNotFound(req)
+    try {
+        // is caught
+        err instanceof Deno.errors.NotFound && await handleNotFound(req)
+    } catch (error) {
+        !silent && debug ? console.log(error) : error(error.message)
+    }
     !silent && debug ? console.log(err) : error(err.message)
     err instanceof InterceptorException && Deno.exit()
   }
