@@ -13,7 +13,7 @@
 
 # Archaeopteryx (Archy for Short)
 
-A fork of Denoliver, which is small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications. This fork adds support for multiple ip-detection, along with more robust error handling.
+A fork of Denoliver, which is a small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications. This fork adds support for multiple ip-detection, along with more robust error handling.
 
 ## Prerequisites
 
