@@ -339,15 +339,14 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
     : serve({ port })
     
   const maybeInterfacesFunction:any = eval("Deno.networkInterfaces")
+  console.log(`maybeInterfacesFunction is:`,maybeInterfacesFunction)
   if (!(maybeInterfacesFunction instanceof Function)) {
     const { getNetworkAddr } = await import('./utils/local-ip.ts')
     const networkAddr = await getNetworkAddr()
-    printStart(root, port, networkAddr, secure)
+    printStart(root, port, [networkAddr], secure)
   } else {
     const ipAddresses = maybeInterfacesFunction().filter((each:any)=>each.family=="IPv4").map((each:any)=>each.address)
-    for (const networkAddr of ipAddresses) {
-        printStart(root, port, networkAddr, secure)
-    }
+    printStart(root, port, ipAddresses, secure)
   }
 
   startListener(router)

@@ -141,30 +141,29 @@ export const printHelp = (): void => {
 export const printStart = (
   root: string,
   port: number,
-  networkAddr: string | undefined,
+  networkAddrs: any,
   secure?: boolean
 ): void => {
   const tcp = secure ? 'https' : 'http'
-  const networkPrint = `${tcp}://${networkAddr}:${port}`
-  console.clear()
+  
+  let networkString = ""
+  if (networkAddrs instanceof Array) {
+    for (const networkAddr of networkAddrs) {
+        networkString += `      ${bold('Network:')}    ${tcp}://${networkAddr}:${port}\n`
+    }
+  }
+  // no network
+  if (networkString == "") {
+    networkString = `      ${bold('Network:')}    Could not resolve network address\n`
+  }
+  
   console.log(
     `\n
   ${bold(green('🦕  🚚 Denoliver'))}
 
   Now serving ${bold(root)}:
 
-      ${bold('Local:')}      ${tcp}://localhost:${port}
-      ${bold('Network:')}    ${
-      networkAddr ? networkPrint : 'Could not resolve network address'
-    }
-
-  ${
-    !networkAddr
-      ? `${blue(
-          'Denoliver needs permission to spawn a subprocess to access your local network address. If you wish, install it again with the --allow-run flag'
-        )}`
-      : ''
-  }
+      ${bold('Local:')}      ${tcp}://localhost:${port}\n${networkString}
   `
   )
 }
