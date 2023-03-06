@@ -10,7 +10,7 @@ export const html = (name: string) =>
       <title>${name}</title>
     </head>
     <body>
-      <div id="denoliver">
+      <div id="archaeopteryx">
         <img src="/logo.svg" width="200" />
         <h1>I'm alive!</h1>
       </div>
@@ -32,7 +32,7 @@ body {
   padding: 0;
 }
 
-#denoliver {
+#archaeopteryx {
   width: 100%;
   height: 100%;
   display: flex;
@@ -41,18 +41,18 @@ body {
   align-items: center;
 }
 
-#denoliver > h1 {
+#archaeopteryx > h1 {
   font-size: 20px;
   margin-bottom: 0;
   color: #333;
 }
 
-#denoliver > p {
+#archaeopteryx > p {
   color: #c4c4c4;
   text-align: center;
 }
 
-#denoliver > div {
+#archaeopteryx > div {
   display: flex;
 }
 

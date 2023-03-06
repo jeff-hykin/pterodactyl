@@ -19,7 +19,7 @@ export default (resource: string) =>
         padding: 0;
       }
   
-      #denoliver {
+      #archaeopteryx {
         width: 100%;
         height: 100%;
         display: flex;
@@ -28,18 +28,18 @@ export default (resource: string) =>
         align-items: center;
       }
   
-      #denoliver > h1 {
+      #archaeopteryx > h1 {
         font-size: 48px;
         margin-bottom: 16px;
         color: #726f7b;
       }
   
-      #denoliver > p {
+      #archaeopteryx > p {
         color: #c4c4c4;
         text-align: center;
       }
   
-      #denoliver > div {
+      #archaeopteryx > div {
         display: flex;
       }
   
@@ -53,7 +53,7 @@ export default (resource: string) =>
       }
     </style>
     <body>
-      <div id="denoliver">
+      <div id="archaeopteryx">
         <h1>404</h1>
         <svg
           xmlns="http://www.w3.org/2000/svg"

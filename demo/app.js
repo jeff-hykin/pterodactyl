@@ -1,1 +1,1 @@
-console.log('Thanks for using Denoliver!')
+console.log('Thanks for using Archaeopteryx!')

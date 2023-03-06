@@ -1,7 +1,7 @@
 {
-  "name": "denoliver",
-  "description": "A simple, dependency free static file server for Deno with possibly the worst name ever.",
-  "homepage": "https://github.com/joakimunge/denoliver",
+  "name": "archaeopteryx",
+  "description": "A simple, dependency free static file server for Deno",
+  "homepage": "https://github.com/joakimunge/archaeopteryx",
   "files": ["./**/*.ts", "README.md"],
   "entry": "./mod.ts"
 }

@@ -74,7 +74,7 @@ test('handleRouteRequest should return index.html', async (): Promise<void> => {
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
-    assert(file.includes(`<div id="denoliver">`))
+    assert(file.includes(`<div id="archaeopteryx">`))
   } finally {
     await tearDown()
   }
@@ -87,7 +87,7 @@ test('handleDirRequest should return a directory if list is true', async (): Pro
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
-    assert(file.includes(`<title>denoliver - /src</title>`))
+    assert(file.includes(`<title>archaeopteryx - /src</title>`))
     assert(file.includes(`test.md`))
   } finally {
     await tearDown()
@@ -127,7 +127,7 @@ test('/any/other/route should return index.html', async (): Promise<void> => {
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
-    assert(file.includes(`<div id="denoliver">`))
+    assert(file.includes(`<div id="archaeopteryx">`))
   } finally {
     await tearDown()
   }
@@ -170,27 +170,27 @@ test('when cors enabled response should have access control header', async (): P
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
     assert(res.headers.has('access-control-allow-origin'))
-    assert(file.includes(`<div id="denoliver">`))
+    assert(file.includes(`<div id="archaeopteryx">`))
   } finally {
     await tearDown()
   }
 })
 
 /* Programmatic use */
-let denoliver: Server
+let archaeopteryx: Server
 test({
   name: 'should be able to be used programmaticaly',
   fn: async (): Promise<void> => {
     try {
-      denoliver = await serve({ root: './demo', cors: true })
+      archaeopteryx = await serve({ root: './demo', cors: true })
       const res = await fetch(`http://localhost:8080`)
       const file = await res.text()
       assertEquals(res.status, 200)
       assert(res.headers.has('content-type'))
       assert(res.headers.has('access-control-allow-origin'))
-      assert(file.includes(`<div id="denoliver">`))
+      assert(file.includes(`<div id="archaeopteryx">`))
     } finally {
-      await denoliver.close()
+      await archaeopteryx.close()
     }
   },
 })
@@ -199,15 +199,15 @@ test({
   name: 'options can be passed to the serve function',
   fn: async (): Promise<void> => {
     try {
-      denoliver = await serve({ root: './demo', cors: true, port: 4000 })
+      archaeopteryx = await serve({ root: './demo', cors: true, port: 4000 })
       const res = await fetch(`http://localhost:4000`)
       const file = await res.text()
       assertEquals(res.status, 200)
       assert(res.headers.has('content-type'))
       assert(res.headers.has('access-control-allow-origin'))
-      assert(file.includes(`<div id="denoliver">`))
+      assert(file.includes(`<div id="archaeopteryx">`))
     } finally {
-      await denoliver.close()
+      await archaeopteryx.close()
     }
   },
 })
@@ -228,7 +228,7 @@ test({
   }
   `
     const encoded = encode(config)
-    await Deno.writeFile(`./demo/denoliver.json`, encoded)
+    await Deno.writeFile(`./demo/archaeopteryx.json`, encoded)
     await setup()
 
     try {
@@ -237,9 +237,9 @@ test({
       assertEquals(res.status, 200)
       assert(res.headers.has('content-type'))
       assert(res.headers.has('access-control-allow-origin'))
-      assert(text.includes(`<div id="denoliver">`))
+      assert(text.includes(`<div id="archaeopteryx">`))
     } finally {
-      await Deno.remove(`./demo/denoliver.json`)
+      await Deno.remove(`./demo/archaeopteryx.json`)
       await tearDown()
     }
   },
@@ -264,7 +264,7 @@ test('before intercepts requests', async (): Promise<void> => {
 //   void
 // > => {
 //   try {
-//     denoliver = await serve({
+//     archaeopteryx = await serve({
 //       root: './demo',
 //       cors: true,
 //       secure: true,
@@ -275,8 +275,8 @@ test('before intercepts requests', async (): Promise<void> => {
 //     assertEquals(res.status, 200)
 //     assert(res.headers.has('content-type'))
 //     assert(res.headers.has('access-control-allow-origin'))
-//     assert(file.includes(`<div id="denoliver">`))
+//     assert(file.includes(`<div id="archaeopteryx">`))
 //   } finally {
-//     denoliver.close()
+//     archaeopteryx.close()
 //   }
 // })

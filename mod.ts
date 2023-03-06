@@ -9,7 +9,7 @@ import {
   posix,
 } from './deps.ts'
 
-/* Denoliver utils */
+/* Archaeopteryx utils */
 import {
   isRoute,
   isValidArg,
@@ -37,7 +37,7 @@ import { getNetworkAddr } from './utils/local-ip.ts'
 import dirTemplate from './directory.ts'
 import { InterceptorException } from './utils/errors.ts'
 
-type DenoliverOptions = {
+type ArchaeopteryxOptions = {
   root?: string
   port?: number
   silent?: boolean
@@ -72,8 +72,8 @@ let secure = false
 let help = false
 let cors = false
 let list = false
-let certFile = 'denoliver.crt'
-let keyFile = 'denoliver.key'
+let certFile = 'archaeopteryx.crt'
+let keyFile = 'archaeopteryx.key'
 let entryPoint = 'index.html'
 let before: Array<Interceptor> | Interceptor
 let after: Array<Interceptor> | Interceptor
@@ -248,7 +248,7 @@ const startListener = async (
   }
 }
 
-const setGlobals = async (args: DenoliverOptions): Promise<void> => {
+const setGlobals = async (args: ArchaeopteryxOptions): Promise<void> => {
   root = args.root ?? '.'
   help = args.help ?? false
   debug = args.debug ?? false
@@ -258,8 +258,8 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
   secure = args.secure ?? false
   cors = args.cors ?? false
   list = args.list ?? false
-  certFile = args.certFile ?? 'denoliver.crt'
-  keyFile = args.keyFile ?? 'denoliver.key'
+  certFile = args.certFile ?? 'archaeopteryx.crt'
+  keyFile = args.keyFile ?? 'archaeopteryx.key'
   entryPoint = args.entryPoint ?? 'index.html'
 
   if (args.before) {
@@ -307,11 +307,11 @@ const makeBoilerplate = async (path: string, name: string) => {
  * Serve a directory over HTTP/HTTPS
  *
  *     const options = { port: 8000, cors: true };
- *     const denoliver = await main(options)
+ *     const archaeopteryx = await main(options)
  *
  * @param options Optional server config
  */
-const main = async (args?: DenoliverOptions): Promise<Server> => {
+const main = async (args?: ArchaeopteryxOptions): Promise<Server> => {
   if (args) {
     setGlobals(args)
   }
@@ -362,8 +362,8 @@ if (import.meta.main) {
       t: false,
       c: false,
       l: false,
-      certFile: 'denoliver.crt',
-      keyFile: 'denoliver.key',
+      certFile: 'archaeopteryx.crt',
+      keyFile: 'archaeopteryx.key',
       entry: 'index.html',
     },
   })
@@ -394,7 +394,7 @@ if (import.meta.main) {
   })
 
   try {
-    const config = await Deno.readFile(`${root}/denoliver.json`)
+    const config = await Deno.readFile(`${root}/archaeopteryx.json`)
     setGlobals(JSON.parse(decode(config)))
   } catch (err) {}
 

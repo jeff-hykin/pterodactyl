@@ -1,17 +1,19 @@
-<p align="center">
-  <img src="media/denoliver_2.png" title="Denoliver" alt="It's a liver" width="320" style="margin: 48px 48px">
+<!-- <p align="center">
+  <img src="media/archaeopteryx_2.png" title="Archaeopteryx" width="320" style="margin: 48px 48px">
 </p>
 
 <p align="center" style="margin-top: 48px">
-<a href="https://github.com/joakimunge/denoliver/actions">
-<img src="https://img.shields.io/github/workflow/status/joakimunge/denoliver/ci?style=for-the-badge"></a>
-<a href="https://github.com/joakimunge/denoliver/releases">
-<img src="https://img.shields.io/github/v/release/joakimunge/denoliver?style=for-the-badge"></a>
-</p>
+<a href="https://github.com/joakimunge/archaeopteryx/actions">
+<img src="https://img.shields.io/github/workflow/status/joakimunge/archaeopteryx/ci?style=for-the-badge"></a>
+<a href="https://github.com/joakimunge/archaeopteryx/releases">
+<img src="https://img.shields.io/github/v/release/joakimunge/archaeopteryx?style=for-the-badge"></a>
+</p> -->
 
 ---
 
-**Denoliver** is a small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
+# Archaeopteryx (Archy for Short)
+
+A fork of Denoliver, which is small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications. This fork adds support for multiple ip-detection, along with more robust error handling.
 
 ## Prerequisites
 
@@ -32,23 +34,17 @@
 
 Install as a Deno executable.
 
-> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read` and `--allow-write` flags to make sure Denoliver can serve your directory.
+> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read`, `--allow-write`, `--allow-sys` flags to make sure Archaeopteryx can serve your directory.
 
-```
-$ deno install --allow-net --allow-read --allow-write --allow-run https://deno.land/x/denoliver/mod.ts
-```
-
-or if you're not happy with the name:
-
-```
-$ deno install -n whateverNameYouWant --allow-net --allow-read --allow-write --allow-run https://deno.land/x/denoliver/mod.ts
+```sh
+deno install -n archy --allow-net --allow-read --allow-write --allow-run --allow-sys https://deno.land/x/archaeopteryx/mod.ts
 ```
 
 ## Why do I need the `--allow-run` flag?
 
-_You don't need it! You can still use Denoliver as normal without this flag._
+_You don't need it! You can still use Archaeopteryx as normal without this flag._
 
-Currently Deno does not provide a way to access local network interfaces, so to do this you need to allow denoliver to spawn the subprocess `ipconfig` and fetch the address from there. When [this](https://github.com/denoland/deno/issues/3802) implementation gets finished, this module will probably be deprecated.
+Currently Deno does not provide a way to access local network interfaces, so to do this you need to allow archaeopteryx to spawn the subprocess `ipconfig` and fetch the address from there. When [this](https://github.com/denoland/deno/issues/3802) implementation gets finished, this module will probably be deprecated.
 
 This code is published for you to use here: https://github.com/joakimunge/deno-local-ip/
 
@@ -57,12 +53,12 @@ This code is published for you to use here: https://github.com/joakimunge/deno-l
 Serve your directory
 
 ```s
-$ denoliver ./demo
+$ archy ./demo
 ```
 
 ## Options
 
-Denoliver comes with a couple of options to customize your experience.
+Archaeopteryx comes with a couple of options to customize your experience.
 
 ```s
 -h                 # Help
@@ -75,14 +71,14 @@ Denoliver comes with a couple of options to customize your experience.
 -c                 # Use CORS - Defaults to false
 --before=<..>   # Before request Interceptor(s)
 --after=<..>    # After request Interceptor(s)
---certFile=<..>    # Specify certificate file - Defaults to denoliver.crt
---keyFile=<..>     # Specify key file - Defaults to denoliver.key
+--certFile=<..>    # Specify certificate file - Defaults to archaeopteryx.crt
+--keyFile=<..>     # Specify key file - Defaults to archaeopteryx.key
 --entry=<..>       # Specify optional entrypoint - Defaults to index.html
 ```
 
 ### Directory Listing
 
-Denoliver supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
+Archaeopteryx supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
 
 <p align="center">
   <img src="media/list.png" alt="Directory listing">
@@ -90,7 +86,7 @@ Denoliver supports indexing of served directories and provides a simple interfac
 
 ### Optional boilerplating
 
-If the given directory doesn't exist, denoliver will ask you if you want to create a boilerplate. This will generate an a basic project folder and serve it for you. Very useful to get up and running quickly.
+If the given directory doesn't exist, archaeopteryx will ask you if you want to create a boilerplate. This will generate an a basic project folder and serve it for you. Very useful to get up and running quickly.
 
 ```
 ├── index.html
@@ -100,7 +96,7 @@ If the given directory doesn't exist, denoliver will ask you if you want to crea
 
 ### Interceptors
 
-Denoliver allows you to inject your own request interceptors to be fired before or after the HTTP requests has been handled by the server.
+Archaeopteryx allows you to inject your own request interceptors to be fired before or after the HTTP requests has been handled by the server.
 This can be one or more functions which have access to the request object (instance of [Deno.Request](https://doc.deno.land/builtin/stable#Request)) and gets called in the order they are defined with the output of the previous function (piped). **These functions must all return the request object.**
 
 Interceptors can be a single function, for example:
@@ -130,10 +126,10 @@ const logRequestUrl = (req: ServerRequest) => {
 export default [setHeaders, logRequestUrl]
 ```
 
-of course this can also be used when using Denoliver as a module:
+of course this can also be used when using Archaeopteryx as a module:
 
 ```typescript
-const server = denoliver({
+const server = archaeopteryx({
   port: 6060,
   before: (req: ServerRequest) => {
     req.headers.set('Authorization', 'Bearer some-token')
@@ -144,7 +140,7 @@ const server = denoliver({
 
 ## Configuration
 
-If you want, you can place a configuration file called `denoliver.json` in the folder you are serving to avoid having to use command line arguments to customize its behaviour. By default it will look like this:
+If you want, you can place a configuration file called `archaeopteryx.json` in the folder you are serving to avoid having to use command line arguments to customize its behaviour. By default it will look like this:
 
 ```JSON
 {
@@ -166,15 +162,15 @@ If you want, you can place a configuration file called `denoliver.json` in the f
 
 ## API
 
-Denoliver can also be used as a module in any Deno project.
+Archaeopteryx can also be used as a module in any Deno project.
 This exposes an instance of [Deno.Server](https://deno.land/std/http/server.ts#L125).
 
 The main function accepts the same config object as specified in the config file above.
 
 ```typescript
-import denoliver from 'https://deno.land/x/denoliver/mod.ts'
+import archaeopteryx from 'https://deno.land/x/archaeopteryx/mod.ts'
 
-const server = denoliver({ port: 6060, cors: true })
+const server = archaeopteryx({ port: 6060, cors: true })
 
 server.close() // Close the server
 ```
@@ -183,7 +179,7 @@ server.close() // Close the server
 
 To use HTTPS you will need a trusted self-signed certificate. If you're on macOS you can use [This](https://github.com/kingkool68/generate-ssl-certs-for-local-development) bash script to easily generate one.
 
-Name the cert and key files `denoliver.crt` and `denoliver.key` and place them in your working dir. You can configure these names to be whatever you want with the config file, or the `--certFile` and `--keyFile` flags.
+Name the cert and key files `archaeopteryx.crt` and `archaeopteryx.key` and place them in your working dir. You can configure these names to be whatever you want with the config file, or the `--certFile` and `--keyFile` flags.
 
 ## Disclaimer
 

@@ -117,7 +117,7 @@ export const printRequest = (req: ServerRequest): void => {
 
 export const printHelp = (): void => {
   console.log(`\n
-  ${bold(green('🦕  🚚 Denoliver - Help'))}
+  ${bold(green('🦕  🚚 Archaeopteryx - Help'))}
 
   OPTIONS    
   -h          # Help
@@ -132,8 +132,8 @@ export const printHelp = (): void => {
   -l          # Use Directory Listings (Disables SPA routing) | ${bold(
     blue('false')
   )}
-  --certFile  # Specify certificate file - ${bold(blue('denoliver.crt'))}
-  --keyFile   # Specify certificate file - ${bold(blue('denoliver.key'))}
+  --certFile  # Specify certificate file - ${bold(blue('archaeopteryx.crt'))}
+  --keyFile   # Specify certificate file - ${bold(blue('archaeopteryx.key'))}
   --entry     # Specify entrypoint | ${bold(blue('index.html'))}
   `)
 }
@@ -159,7 +159,7 @@ export const printStart = (
   
   console.log(
     `\n
-  ${bold(green('🦕  🚚 Denoliver'))}
+  ${bold(green('🦕  🚚 Archaeopteryx'))}
 
   Now serving ${bold(root)}:
 

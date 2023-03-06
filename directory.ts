@@ -8,7 +8,7 @@ export default (entries: DirEntry[], path: string) => {
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <title>denoliver - ${path}</title>
+    <title>archaeopteryx - ${path}</title>
   </head>
   <style>
   :root {
@@ -38,7 +38,7 @@ html,
     margin: 0;
   }
   
-  #denoliver {
+  #archaeopteryx {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -51,7 +51,7 @@ html,
 
   }
   
-  #denoliver > h1 {
+  #archaeopteryx > h1 {
     font-size: 36px;
     margin-bottom: 0;
     color: var(--title);
@@ -118,7 +118,7 @@ a:hover::before {
   
   </style>
   <body>
-    <div id="denoliver">
+    <div id="archaeopteryx">
       <h1>${path}</h1>
       <div class="contents">
         ${sorted
