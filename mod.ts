@@ -61,7 +61,6 @@ let watcher: Deno.FsWatcher
 
 /* Server */
 let server: Server
-let networkAddr: string | undefined
 
 /* Globals */
 let root = '.'
@@ -338,9 +337,17 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
         keyFile: `${root}/${keyFile}`,
       })
     : serve({ port })
-
-  networkAddr = await getNetworkAddr()
-  printStart(root, port, networkAddr, secure)
+    
+  if (!(Deno.networkInterfaces instanceof Function)) {
+    const { getNetworkAddr } = await import('./utils/local-ip.ts')
+    const networkAddr = await getNetworkAddr()
+    printStart(root, port, networkAddr, secure)
+  } else {
+    const ipAddresses = Deno.networkInterfaces().filter(each=>each.family=="IPv4").map(each=>each.address)
+    for (const networkAddr of ipAddresses) {
+        printStart(root, port, networkAddr, secure)
+    }
+  }
 
   startListener(router)
   return server
