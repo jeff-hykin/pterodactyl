@@ -339,7 +339,6 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
     : serve({ port })
     
   const maybeInterfacesFunction:any = eval("Deno.networkInterfaces")
-  console.log(`maybeInterfacesFunction is:`,maybeInterfacesFunction)
   if (!(maybeInterfacesFunction instanceof Function)) {
     const { getNetworkAddr } = await import('./utils/local-ip.ts')
     const networkAddr = await getNetworkAddr()
