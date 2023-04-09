@@ -10,10 +10,26 @@
 </p> -->
 
 ---
+<img width="1396" alt="Screen Shot 2023-04-09 at 6 26 06 PM" src="https://user-images.githubusercontent.com/17692058/230801323-08dad910-98b6-45c0-9763-11fd63e27b79.png">
 
-# Archaeopteryx (Archy for Short)
+<a href="https://www.flaticon.com/free-icons/dinosaur" title="dinosaur icons">(Icon created by max.icons - Flaticon)</a>
+
+# What is this?
 
 A fork of Denoliver, which is a small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications. This fork adds support for multiple ip-detection, along with more robust error handling.
+
+# How do I install it?
+
+```sh
+deno install -n archy -A https://deno.land/x/archaeopteryx/mod.ts
+```
+
+Alternatively, list each permission:
+
+```sh
+deno install -n archy --allow-net --allow-read --allow-write --allow-run --allow-sys https://deno.land/x/archaeopteryx/mod.ts
+```
+
 
 ## Prerequisites
 
@@ -30,25 +46,7 @@ A fork of Denoliver, which is a small, zero config dev & static file server with
 - Boilerplating for rapid prototyping.
 - Injectable HTTP request interceptors. (TS & JS)
 
-## Getting started
-
-Install as a Deno executable.
-
-> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read`, `--allow-write`, `--allow-sys` flags to make sure Archaeopteryx can serve your directory.
-
-```sh
-deno install -n archy --allow-net --allow-read --allow-write --allow-run --allow-sys https://deno.land/x/archaeopteryx/mod.ts
-```
-
-## Why do I need the `--allow-run` flag?
-
-_You don't need it! You can still use Archaeopteryx as normal without this flag._
-
-Currently Deno does not provide a way to access local network interfaces, so to do this you need to allow archaeopteryx to spawn the subprocess `ipconfig` and fetch the address from there. When [this](https://github.com/denoland/deno/issues/3802) implementation gets finished, this module will probably be deprecated.
-
-This code is published for you to use here: https://github.com/joakimunge/deno-local-ip/
-
-## Running
+## How do I use it?
 
 Serve your directory
 
