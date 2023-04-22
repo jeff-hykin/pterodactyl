@@ -135,7 +135,22 @@ const server = archy({
     req.headers.set('Authorization', 'Bearer some-token')
     return req
   },
+  // root?: string
+  // port?: number
+  // silent?: boolean
+  // disableReload?: boolean
+  // debug?: boolean
+  // cors?: boolean
+  // secure?: boolean
+  // help?: boolean
+  // list?: boolean
+  // certFile?: string
+  // keyFile?: string
+  // entryPoint?: string
+  // before?: string | Interceptor | Interceptor[]
+  // after?: string | Interceptor | Interceptor[]
 })
+
 ```
 
 ## Configuration
