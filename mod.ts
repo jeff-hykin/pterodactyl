@@ -1,4 +1,5 @@
 const { args } = Deno
+import * as Path from "https://deno.land/std@0.128.0/path/mod.ts"
 import {
   parse,
   acceptWebSocket,
@@ -213,16 +214,18 @@ const router = async (req: ServerRequest): Promise<void> => {
 }
 
 const checkCredentials = async () => {
-  try {
-    await Deno.stat(`${root}/${certFile}`)
-    await Deno.stat(`${root}/${keyFile}`)
-  } catch (err) {
-    !silent && debug
-      ? console.error(err)
-      : error(
-          'Could not certificate or key files. Make sure you have your CERT_FILE.crt & KEY_FILE.key in your working directory, or try without -t.'
-        )
-    Deno.exit()
+  const pathToCert = Path.isAbsolute(certFile) ? certFile : `${root}/${certFile}`
+  const pathToKey  = Path.isAbsolute(keyFile)  ? keyFile  : `${root}/${keyFile}`
+  const certExists = await Deno.stat(pathToCert).catch(error=>null)
+  const keyExists = await Deno.stat(pathToKey).catch(error=>null)
+  if (!certExists || !keyExists) {
+    if (!certExists) {
+        console.error(`I was unable to find a cert file at ${JSON.stringify(pathToCert)}`)
+    }
+    if (!keyExists) {
+        console.error(`I was unable to find a key file at ${JSON.stringify(pathToCert)}`)
+    }
+    Deno.exit(1)
   }
 }
 
@@ -328,13 +331,15 @@ const main = async (args?: ArchaeopteryxOptions): Promise<Server> => {
 
   secure && (await checkCredentials())
 
+  const pathToCert = Path.isAbsolute(certFile) ? certFile : `${root}/${certFile}`
+  const pathToKey  = Path.isAbsolute(keyFile)  ? keyFile  : `${root}/${keyFile}`
   // In certain browsers the server will crash if Self-signed certificates are not allowed.
   // Ref: https://github.com/denoland/deno/issues/5760
   server = secure
     ? serveTLS({
         port: port,
-        certFile: `${root}/${certFile}`,
-        keyFile: `${root}/${keyFile}`,
+        certFile: pathToCert,
+        keyFile: pathToKey,
       })
     : serve({ port })
     
