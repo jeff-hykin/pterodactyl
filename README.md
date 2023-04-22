@@ -127,7 +127,9 @@ export default [setHeaders, logRequestUrl]
 of course this can also be used when using Archaeopteryx as a module:
 
 ```typescript
-const server = archaeopteryx({
+import archy from "https://deno.land/x/archaeopteryx/mod.ts"
+
+const server = archy({
   port: 6060,
   before: (req: ServerRequest) => {
     req.headers.set('Authorization', 'Bearer some-token')
