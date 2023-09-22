@@ -82,7 +82,7 @@ let after: Array<Interceptor> | Interceptor
 // is caught
 const handleFileRequest = async (req: ServerRequest) => {
   try {
-    const path = joinPath(root, req.url)
+    const path = joinPath(root, unescape(req.url))
     const file = await Deno.open(path)
     req.done.then(() => {
       file.close()
