@@ -18,6 +18,14 @@
 
 A fork of Denoliver, which is a small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications. This fork adds support for multiple ip-detection, along with more robust error handling.
 
+### Changes from Denoliver
+
+- Fixed handling of file paths with spaces in the name
+- Fixed credential handling and detection
+- Better IP detection using new Deno API's
+- Improved hanlding of long file names (no more clipping)
+- Improved file explorer view (file type sorting, seperation of folder/files)
+
 # How do I install it?
 
 ```sh
