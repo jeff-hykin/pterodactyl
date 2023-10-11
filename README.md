@@ -73,7 +73,7 @@ Archaeopteryx comes with a couple of options to customize your experience.
 -p <PORT>          # Specify desired port - Defaults to 8080
 -d                 # Debug for more verbose output - Defaults to false
 -t                 # Use HTTPS - Requires a trusted self-signed certificate
--l                 # Use directory listings - Disables routing (SPA)
+-f                 # Files only (won't list directories)
 -c                 # Use CORS - Defaults to false
 --before=<..>   # Before request Interceptor(s)
 --after=<..>    # After request Interceptor(s)
@@ -151,7 +151,7 @@ const server = archy({
   // cors?: boolean
   // secure?: boolean
   // help?: boolean
-  // list?: boolean
+  // dontList?: boolean
   // certFile?: string
   // keyFile?: string
   // entryPoint?: string
@@ -174,7 +174,7 @@ If you want, you can place a configuration file called `archaeopteryx.json` in t
   "debug": false,
   "secure": false,
   "cors": false,
-  "list": false,
+  "dontList": false,
   "before": "before.ts",
   "after": "after.ts",
   "certFile": "some_file.crt",

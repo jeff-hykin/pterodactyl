@@ -47,7 +47,7 @@ type ArchaeopteryxOptions = {
   cors?: boolean
   secure?: boolean
   help?: boolean
-  list?: boolean
+  dontList?: boolean
   certFile?: string
   keyFile?: string
   entryPoint?: string
@@ -72,7 +72,7 @@ let disableReload = false
 let secure = false
 let help = false
 let cors = false
-let list = false
+let dontList = false
 let certFile = 'archaeopteryx.crt'
 let keyFile = 'archaeopteryx.key'
 let entryPoint = 'index.html'
@@ -122,7 +122,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
 
 // is caught
 const handleDirRequest = async (req: ServerRequest): Promise<void> => {
-  const path = joinPath(root, req.url)
+  const path = joinPath(root, unescape(req.url))
   const dirUrl = `/${posix.relative(root, path)}`
   const entries: DirEntry[] = []
   for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
@@ -182,25 +182,19 @@ const router = async (req: ServerRequest): Promise<void> => {
       // is caught
       return await handleRouteRequest(req)
     }
-    const path = joinPath(root, req.url)
-    if (isRoute(path)) {
-      if (list) {
-        try {
-          const fileInfo = await Deno.stat(path)
-
-          if (fileInfo.isDirectory) {
-            // is caught
+    const path = joinPath(root, unescape(req.url))
+    const itemInfo = await Deno.stat(path)
+    
+    if (itemInfo.isDirectory) {
+        if (!dontList) {
             return await handleDirRequest(req)
-          }
-        } catch (err) {
-          throw err
+        } else {
+            // is caught
+            return await handleNotFound(req)
         }
-      }
-      // is caught
-      return await handleRouteRequest(req)
+    } else {
+        return await handleFileRequest(req)
     }
-
-    return await handleFileRequest(req)
   } catch (err) {
     try {
         // is caught
@@ -260,7 +254,7 @@ const setGlobals = async (args: ArchaeopteryxOptions): Promise<void> => {
   port = args.port ?? 8080
   secure = args.secure ?? false
   cors = args.cors ?? false
-  list = args.list ?? false
+  dontList = args.dontList ?? false
   certFile = args.certFile ?? 'archaeopteryx.crt'
   keyFile = args.keyFile ?? 'archaeopteryx.key'
   entryPoint = args.entryPoint ?? 'index.html'
@@ -390,7 +384,7 @@ if (import.meta.main) {
     secure: parsedArgs.t,
     help: parsedArgs.h,
     cors: parsedArgs.c,
-    list: parsedArgs.l,
+    dontList: parsedArgs.f,
     certFile: parsedArgs.certFile,
     keyFile: parsedArgs.keyFile,
     entryPoint: parsedArgs.entry,
