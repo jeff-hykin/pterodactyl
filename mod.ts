@@ -12,7 +12,6 @@ import {
 
 /* Archaeopteryx utils */
 import {
-  isRoute,
   isValidArg,
   printHelp,
   readFile,

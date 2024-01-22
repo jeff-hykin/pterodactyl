@@ -1,6 +1,5 @@
 import { assertEquals, assert } from './deps.ts'
 import {
-  isRoute,
   contentType,
   isValidPort,
   isValidArg,
@@ -10,20 +9,6 @@ import {
 
 /* Utils */
 
-Deno.test('isRoute', () => {
-  const isRouteRequest = isRoute('/route/goes/here')
-  assertEquals(isRouteRequest, true)
-})
-
-Deno.test('isRoute', () => {
-  const isRouteRequest = isRoute('http://www.someurl.com/test')
-  assertEquals(isRouteRequest, true)
-})
-
-Deno.test('isRoute', () => {
-  const isRouteRequest = isRoute('http://www.someurl.com/main.js')
-  assertEquals(isRouteRequest, false)
-})
 
 Deno.test('contentType', () => {
   const type = contentType('/path/to/image.jpg')

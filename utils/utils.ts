@@ -52,12 +52,6 @@ export const contentType = (path: string): string => {
   return mimes[ext] || 'application/octet-stream'
 }
 
-export const isRoute = (path: string) => {
-  const withoutTrailing = path.replace(/\/+$/, '')
-  const last = withoutTrailing.split('/').pop()
-  return last && !~last.indexOf('.')
-}
-
 export const readFile = async (filename: string) => {
   const decoder = new TextDecoder()
   return decoder.decode(await Deno.readFile(filename))
