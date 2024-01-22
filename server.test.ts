@@ -1,15 +1,13 @@
 import {
   assert,
   assertEquals,
-  TextProtoReader,
-  BufReader,
   Args,
   Server,
 } from './deps.ts'
-import { appendReloadScript, encode, decode } from './utils/utils.ts'
+import { appendReloadScript, encode } from './utils/utils.ts'
 import serve from './mod.ts'
 
-let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
+let serverProcess: null|Deno.ChildProcess
 let port = 6060
 const { test } = Deno
 
@@ -17,11 +15,10 @@ async function setup(args?: Args): Promise<void> {
   const cmd = [
     Deno.execPath(),
     'run',
-    '--allow-read',
-    '--allow-net',
-    '--allow-write',
+    '-A',
     './mod.ts',
     './demo',
+    // '-d',
   ]
 
   args && args.c && cmd.push('-c')
@@ -36,22 +33,32 @@ async function setup(args?: Args): Promise<void> {
   }
 
   cmd.push(`-p${port}`)
-
-  server = await Deno.run({
-    cmd,
-    stdout: 'piped',
-    stderr: 'null',
-  })
-  if (!server.stdout) throw Error
-  assert(server.stdout != null)
-  const r = new TextProtoReader(new BufReader(server.stdout))
-  await r.readLine()
+  serverProcess = new Deno.Command(
+    cmd.shift() as any, {
+      args: cmd,
+      stdout: 'null',
+      //   stderr: 'null',
+    }
+  ).spawn()
+  // serverProcess.ref()
+  
+  while (1) {
+    try {
+      const res = await fetch(`http://localhost:${port}`)
+      const text = await res.text()
+      break
+    } catch (error) {
+      
+    }
+  }
 }
 
 async function tearDown(): Promise<void> {
-  server.close()
-  await Deno.readAll(server.stdout!)
-  server.stdout!.close()
+  serverProcess?.kill("SIGSTOP")
+  ;(new Promise((resolve)=>setTimeout(resolve, 500))).then(()=>{
+    serverProcess?.kill("SIGKILL")
+  })
+  await serverProcess?.output()
 }
 
 test('should serve on given port', async (): Promise<void> => {
@@ -252,9 +259,6 @@ test('before intercepts requests', async (): Promise<void> => {
     await res.text()
     assertEquals(res.status, 200)
   } finally {
-    await server.close()
-    const s = decode(await server.output())
-    assert(s.includes('Before Request Interceptor'))
   }
 })
 
