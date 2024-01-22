@@ -15,6 +15,7 @@ export const isValidArg = (arg: string): boolean => {
     't',
     'c',
     'l',
+    'allowAbsolute',
     'keyFile',
     'certFile',
     'entry',
@@ -119,16 +120,13 @@ export const printHelp = (): void => {
   -n          # Disable Live Reload | ${bold(blue('false'))}
   -s          # Silent | ${bold(blue('false'))}
   -d          # Debug | ${bold(blue('false'))}
-  -t          # Use HTTPS - Requires trusted self signed certificate | ${bold(
-    blue('false')
-  )}
+  -t          # Use HTTPS - Requires trusted self signed certificate | ${bold(blue('false'))}
   -c          # Allow CORS | ${bold(blue('false'))}
-  -l          # Use Directory Listings (Disables SPA routing) | ${bold(
-    blue('false')
-  )}
-  --certFile  # Specify certificate file - ${bold(blue('archaeopteryx.crt'))}
-  --keyFile   # Specify certificate file - ${bold(blue('archaeopteryx.key'))}
-  --entry     # Specify entrypoint | ${bold(blue('index.html'))}
+  -l          # Use Directory Listings (Disables SPA routing) | ${bold(blue('false'))}
+  --allowAbsolute # If a path doesnt exist, try it as an absolute path (not recommended) | ${bold(blue('false'))}
+  --certFile      # Specify certificate file - ${bold(blue('archaeopteryx.crt'))}
+  --keyFile       # Specify certificate file - ${bold(blue('archaeopteryx.key'))}
+  --entry         # Specify entrypoint | ${bold(blue('index.html'))}
   `)
 }
 

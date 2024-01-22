@@ -50,6 +50,7 @@ type ArchaeopteryxOptions = {
   certFile?: string
   keyFile?: string
   entryPoint?: string
+  allowAbsolute?: boolean,
   before?: string | Interceptor | Interceptor[]
   after?: string | Interceptor | Interceptor[]
 }
@@ -67,6 +68,7 @@ const settings: any = {
   help: false,
   cors: false,
   dontList: false,
+  allowAbsolute: false,
   certFile: 'archaeopteryx.crt',
   keyFile: 'archaeopteryx.key',
   entryPoint: 'index.html',
@@ -135,6 +137,7 @@ const setGlobals = async (args: ArchaeopteryxOptions): Promise<void> => {
   settings.secure = args.secure ?? false
   settings.cors = args.cors ?? false
   settings.dontList = args.dontList ?? false
+  settings.allowAbsolute = args.allowAbsolute ?? false
   settings.certFile = args.certFile ?? 'archaeopteryx.crt'
   settings.keyFile = args.keyFile ?? 'archaeopteryx.key'
   settings.entryPoint = args.entryPoint ?? 'index.html'
@@ -258,6 +261,7 @@ if (import.meta.main) {
       t: false,
       c: false,
       l: false,
+      allowAbsolute: false,
       certFile: 'archaeopteryx.crt',
       keyFile: 'archaeopteryx.key',
       entry: 'index.html',
@@ -283,6 +287,7 @@ if (import.meta.main) {
     help: parsedArgs.h,
     cors: parsedArgs.c,
     dontList: parsedArgs.f,
+    allowAbsolute: parsedArgs.allowAbsolute,
     certFile: parsedArgs.certFile,
     keyFile: parsedArgs.keyFile,
     entryPoint: parsedArgs.entry,

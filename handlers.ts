@@ -20,9 +20,8 @@ import dirTemplate from './directory.ts'
 
 
 // is caught
-export const handleFileRequest = async (settings: any, req: ServerRequest) => {
+export const handleFileRequest = async (settings: any, req: ServerRequest, path: String) => {
   try {
-    const path = joinPath(settings.root, unescape(req.url))
     const file = await Deno.open(path)
     req.done.then(() => {
       file.close()
@@ -41,8 +40,7 @@ export const handleFileRequest = async (settings: any, req: ServerRequest) => {
 }
 
 // is caught
-export const handleDirRequest = async (settings: any, req: ServerRequest): Promise<void> => {
-  const path = joinPath(settings.root, unescape(req.url))
+export const handleDirRequest = async (settings: any, req: ServerRequest, path: String): Promise<void> => {
   const dirUrl = `/${posix.relative(settings.root, path)}`
   const entries: DirEntry[] = []
   for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
@@ -58,29 +56,49 @@ export const handleDirRequest = async (settings: any, req: ServerRequest): Promi
 }
 
 export const handleFileOrFolderRequest = async (settings: any, req: ServerRequest): Promise<void> => {
-  const path = joinPath(settings.root, unescape(req.url))
+  let path = joinPath(settings.root, unescape(req.url))
+  let itemExists = false
   let itemInfo
   
   try {
-    itemInfo = await Deno.stat(path);
+    itemInfo = await Deno.stat(path)
+    itemExists = true
   } catch (err) {
-    if (err instanceof Deno.errors.NotFound) {
-      return await handleNotFound(settings, req);
-    } else {
-      throw err;
+    if (!(err instanceof Deno.errors.NotFound)) {
+      throw err
     }
   }
-
-  if (!itemInfo.isDirectory) {
-    return await handleFileRequest(settings, req)
+  
+  // try as absolute path (NOTE: there is no way to perfectly differentiate absolute VS relative in the request)
+  if (settings.allowAbsolute && !itemExists) {
+    try {
+      path = `/${unescape(req.url)}`
+      itemInfo = await Deno.stat(path)
+      itemExists = true
+    } catch (err) {
+      if (!(err instanceof Deno.errors.NotFound)) {
+        throw err
+      }
+    }
+  }
+  
+  let output
+  if (!itemExists) {
+    output = await handleNotFound(settings, req)
   } else {
-    if (settings.dontList) {
-      // is caught
-      return await handleNotFound(settings, req)
+    if (!itemInfo?.isDirectory) {
+      return await handleFileRequest(settings, req, path)
     } else {
-      return await handleDirRequest(settings, req)
+      if (settings.dontList) {
+        // is caught
+        return await handleNotFound(settings, req)
+      } else {
+        return await handleDirRequest(settings, req, path)
+      }
     }
   }
+  
+  return output
 }
 
 // is caught
@@ -99,7 +117,8 @@ export const handleRouteRequest = async (settings: any, req: ServerRequest): Pro
   } catch (err) {
     !settings.silent && settings.debug ? console.error(err) : error(err)
     // is caught
-    await handleDirRequest(settings, req)
+    const path = joinPath(settings.root, unescape(req.url))
+    await handleDirRequest(settings, req, path)
   }
 }
 
