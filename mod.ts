@@ -199,8 +199,8 @@ const router = async (req: ServerRequest): Promise<void> => {
     try {
         // is caught
         err instanceof Deno.errors.NotFound && await handleNotFound(req)
-    } catch (error) {
-        !silent && debug ? console.log(error) : error(error.message)
+    } catch (err2) {
+        !silent && debug ? console.log(err2) : error(err2.message)
     }
     !silent && debug ? console.log(err) : error(err.message)
     err instanceof InterceptorException && Deno.exit()
