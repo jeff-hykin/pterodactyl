@@ -56,12 +56,6 @@ type ArchaeopteryxOptions = {
 
 type Interceptor = (r: ServerRequest) => ServerRequest
 
-/* Initialize file watcher */
-let watcher: Deno.FsWatcher
-
-/* Server */
-let server: Server
-
 /* Globals */
 const settings: any = {
   root: '.',
@@ -80,96 +74,7 @@ const settings: any = {
   after: [] as Array<Interceptor> | Interceptor,
 }
 
-// is caught
-const handleFileRequest = async (req: ServerRequest) => {
-  try {
-    const path = joinPath(settings.root, unescape(req.url))
-    const file = await Deno.open(path)
-    req.done.then(() => {
-      file.close()
-    })
-    // is caught 
-    return await req.respond({
-      status: 200,
-      headers: setHeaders(settings.cors, path),
-      body: file,
-    })
-  } catch (err) {
-    !settings.silent && settings.debug ? console.error(err) : error(err.message)
-    // is caught
-    await handleNotFound(req)
-  }
-}
-
-// is caught
-const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
-  try {
-    const file = await readFile(`${settings.root}/${settings.entryPoint}`)
-    const { hostname, port } = req.conn.localAddr as Deno.NetAddr
-    // is caught
-    await req.respond({
-      status: 200,
-      headers: setHeaders(settings.cors),
-      body: settings.disableReload
-        ? file
-        : appendReloadScript(file, port, hostname, settings.secure),
-    })
-  } catch (err) {
-    !settings.silent && settings.debug ? console.error(err) : error(err.message)
-    // is caught
-    await handleDirRequest(req)
-  }
-}
-
-// is caught
-const handleDirRequest = async (req: ServerRequest): Promise<void> => {
-  const path = joinPath(settings.root, unescape(req.url))
-  const dirUrl = `/${posix.relative(settings.root, path)}`
-  const entries: DirEntry[] = []
-  for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
-    const filePath = posix.join(dirUrl, '/', entry.name)
-    entries.push({ ...entry, url: decodeURIComponent(filePath) })
-  }
-
-  await req.respond({
-    status: 200,
-    body: encode(dirTemplate(entries, dirUrl)),
-    headers: setHeaders(settings.cors),
-  })
-}
-
-const handleWs = async (req: ServerRequest): Promise<void> => {
-  if (!watcher) {
-    watcher = Deno.watchFs(settings.root, { recursive: true })
-  }
-  try {
-    const { conn, r: bufReader, w: bufWriter, headers } = req
-    const socket = await acceptWebSocket({
-      conn,
-      bufReader,
-      bufWriter,
-      headers,
-    })
-
-    for await (const event of watcher) {
-      if (event.kind === 'modify') {
-        await socket.send('reload')
-      }
-    }
-  } catch (err) {
-    !settings.silent && error(err.message)
-  }
-}
-
-// is caught
-const handleNotFound = async (req: ServerRequest): Promise<void> => {
-  return req.respond({
-    status: 404,
-    headers: setHeaders(settings.cors),
-    body: inject404(req.url),
-  })
-}
-
+import * as hanlders from "./handlers.ts"
 const router = async (req: ServerRequest): Promise<void> => {
   try {
     if (!(req instanceof ServerRequest)) {
@@ -177,33 +82,33 @@ const router = async (req: ServerRequest): Promise<void> => {
     }
     printRequest(req)
     if (!settings.disableReload && isWebSocket(req)) {
-      return await handleWs(req)
+      return await hanlders.handleWs(settings, req)
     }
     if (req.method === 'GET' && req.url === '/') {
       // is caught
-      return await handleRouteRequest(req)
+      return await hanlders.handleRouteRequest(settings, req)
     }
     const path = joinPath(settings.root, unescape(req.url))
     const itemInfo = await Deno.stat(path)
     
     if (itemInfo.isDirectory) {
         if (!settings.dontList) {
-            return await handleDirRequest(req)
+            return await hanlders.handleDirRequest(settings, req)
         } else {
             // is caught
-            return await handleNotFound(req)
+            return await hanlders.handleNotFound(settings, req)
         }
     } else {
-        return await handleFileRequest(req)
+        return await hanlders.handleFileRequest(settings, req)
     }
   } catch (err) {
     try {
         // is caught
-        err instanceof Deno.errors.NotFound && await handleNotFound(req)
+        err instanceof Deno.errors.NotFound && await hanlders.handleNotFound(settings, req)
     } catch (err2) {
-        !settings.silent && settings.debug ? console.log(err2) : error(err2.message)
+        !settings.silent && settings.debug ? console.log(err2) : error(err2)
     }
-    !settings.silent && settings.debug ? console.log(err) : error(err.message)
+    !settings.silent && settings.debug ? console.log(err) : error(err)
     err instanceof InterceptorException && Deno.exit()
   }
 }
@@ -218,21 +123,22 @@ const callInterceptors = (
 }
 
 const startListener = async (
+  server: Server,
   handler: (req: ServerRequest) => void
 ): Promise<void> => {
   try {
     for await (const req of server) {
-      if (settings.before) {
+      if (settings.before.length>0) {
         handler(await callInterceptors(req, settings.before))
       } else {
         handler(req)
       }
-      if (settings.after) {
+      if (settings.after.length>0) {
         callInterceptors(req, settings.after)
       }
     }
   } catch (err) {
-    !settings.silent && settings.debug ? console.error(err) : error(err.message)
+    !settings.silent && settings.debug ? console.error(err) : error(err)
   }
 }
 
@@ -259,7 +165,7 @@ const setGlobals = async (args: ArchaeopteryxOptions): Promise<void> => {
         const interceptors = await import(path)
         settings.before = interceptors.default
       } catch (err) {
-        !settings.silent && settings.debug ? console.error(err) : error(err.message)
+        !settings.silent && settings.debug ? console.error(err) : error(err)
       }
     }
   }
@@ -273,7 +179,7 @@ const setGlobals = async (args: ArchaeopteryxOptions): Promise<void> => {
         const interceptors = await import(path)
         settings.after = interceptors.default
       } catch (err) {
-        !settings.silent && settings.debug ? console.error(err) : error(err.message)
+        !settings.silent && settings.debug ? console.error(err) : error(err)
       }
     }
   }
@@ -337,7 +243,7 @@ const main = async (args?: ArchaeopteryxOptions): Promise<Server> => {
   const pathToKey  = Path.isAbsolute(settings.keyFile)  ? settings.keyFile  : `${settings.root}/${settings.keyFile}`
   // In certain browsers the server will crash if Self-signed certificates are not allowed.
   // Ref: https://github.com/denoland/deno/issues/5760
-  server = settings.secure
+  const server = settings.secure
     ? serveTLS({
         port: settings.port,
         certFile: pathToCert,
@@ -354,8 +260,8 @@ const main = async (args?: ArchaeopteryxOptions): Promise<Server> => {
     const ipAddresses = maybeInterfacesFunction().filter((each:any)=>each.family=="IPv4").map((each:any)=>each.address)
     printStart(settings.root, settings.port, ipAddresses, settings.secure)
   }
-
-  startListener(router)
+  
+  startListener(server, router)
   return server
 }
 
@@ -382,6 +288,7 @@ if (import.meta.main) {
       Deno.exit()
     }
   })
+
 
   await setGlobals({
     root: parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.',
