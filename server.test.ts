@@ -184,7 +184,9 @@ test({
       assert(res.headers.has('access-control-allow-origin'))
       assert(file.includes(`<div id="archaeopteryx">`))
     } finally {
-      await archaeopteryx.close()
+      if (archaeopteryx) {
+        archaeopteryx.close()
+      }
     }
   },
 })

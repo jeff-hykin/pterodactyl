@@ -20,7 +20,7 @@ import dirTemplate from './directory.ts'
 
 
 // is caught
-export const handleFileRequest = async (settings: any, req: ServerRequest, path: String) => {
+export const handleFileRequest = async (settings: any, req: ServerRequest, path: string) => {
   try {
     const file = await Deno.open(path)
     req.done.then(() => {
@@ -40,7 +40,7 @@ export const handleFileRequest = async (settings: any, req: ServerRequest, path:
 }
 
 // is caught
-export const handleDirRequest = async (settings: any, req: ServerRequest, path: String): Promise<void> => {
+export const handleDirRequest = async (settings: any, req: ServerRequest, path: string): Promise<void> => {
   const dirUrl = `/${posix.relative(settings.root, path)}`
   const entries: DirEntry[] = []
   for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
