@@ -79,6 +79,7 @@ let entryPoint = 'index.html'
 let before: Array<Interceptor> | Interceptor
 let after: Array<Interceptor> | Interceptor
 
+
 // is caught
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -207,22 +208,6 @@ const router = async (req: ServerRequest): Promise<void> => {
   }
 }
 
-const checkCredentials = async () => {
-  const pathToCert = Path.isAbsolute(certFile) ? certFile : `${root}/${certFile}`
-  const pathToKey  = Path.isAbsolute(keyFile)  ? keyFile  : `${root}/${keyFile}`
-  const certExists = await Deno.stat(pathToCert).catch(error=>null)
-  const keyExists = await Deno.stat(pathToKey).catch(error=>null)
-  if (!certExists || !keyExists) {
-    if (!certExists) {
-        console.error(`I was unable to find a cert file at ${JSON.stringify(pathToCert)}`)
-    }
-    if (!keyExists) {
-        console.error(`I was unable to find a key file at ${JSON.stringify(pathToCert)}`)
-    }
-    Deno.exit(1)
-  }
-}
-
 const callInterceptors = (
   req: ServerRequest,
   funcs: Interceptor[] | Interceptor
@@ -237,7 +222,14 @@ const startListener = async (
 ): Promise<void> => {
   try {
     for await (const req of server) {
-      before ? handler(await callInterceptors(req, before)) : handler(req)
+      if (before) {
+        handler(await callInterceptors(req, before))
+      } else {
+        handler(req)
+      }
+      if (after) {
+        callInterceptors(req, after)
+      }
       after && callInterceptors(req, after)
     }
   } catch (err) {
@@ -322,8 +314,25 @@ const main = async (args?: ArchaeopteryxOptions): Promise<Server> => {
     error(`${port} is not a valid port.`)
     Deno.exit()
   }
-
-  secure && (await checkCredentials())
+  
+  if (secure) {
+    // 
+    // check credentials
+    // 
+    const pathToCert = Path.isAbsolute(certFile) ? certFile : `${root}/${certFile}`
+    const pathToKey  = Path.isAbsolute(keyFile)  ? keyFile  : `${root}/${keyFile}`
+    const certExists = await Deno.stat(pathToCert).catch(error=>null)
+    const keyExists = await Deno.stat(pathToKey).catch(error=>null)
+    if (!certExists || !keyExists) {
+      if (!certExists) {
+          console.error(`I was unable to find a cert file at ${JSON.stringify(pathToCert)}`)
+      }
+      if (!keyExists) {
+          console.error(`I was unable to find a key file at ${JSON.stringify(pathToCert)}`)
+      }
+      Deno.exit(1)
+    }
+  }
 
   const pathToCert = Path.isAbsolute(certFile) ? certFile : `${root}/${certFile}`
   const pathToKey  = Path.isAbsolute(keyFile)  ? keyFile  : `${root}/${keyFile}`
