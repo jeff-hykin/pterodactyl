@@ -74,7 +74,7 @@ const settings: any = {
   after: [] as Array<Interceptor> | Interceptor,
 }
 
-import * as hanlders from "./handlers.ts"
+import * as handlers from "./handlers.ts"
 const router = async (req: ServerRequest): Promise<void> => {
   try {
     if (!(req instanceof ServerRequest)) {
@@ -82,32 +82,15 @@ const router = async (req: ServerRequest): Promise<void> => {
     }
     printRequest(req)
     if (!settings.disableReload && isWebSocket(req)) {
-      return await hanlders.handleWs(settings, req)
+      return await handlers.handleWs(settings, req)
     }
     if (req.method === 'GET' && req.url === '/') {
       // is caught
-      return await hanlders.handleRouteRequest(settings, req)
-    }
-    const path = joinPath(settings.root, unescape(req.url))
-    const itemInfo = await Deno.stat(path)
-    
-    if (itemInfo.isDirectory) {
-        if (!settings.dontList) {
-            return await hanlders.handleDirRequest(settings, req)
-        } else {
-            // is caught
-            return await hanlders.handleNotFound(settings, req)
-        }
+      return await handlers.handleRouteRequest(settings, req)
     } else {
-        return await hanlders.handleFileRequest(settings, req)
+      handlers.handleFileOrFolderRequest(settings, req);
     }
   } catch (err) {
-    try {
-        // is caught
-        err instanceof Deno.errors.NotFound && await hanlders.handleNotFound(settings, req)
-    } catch (err2) {
-        !settings.silent && settings.debug ? console.log(err2) : error(err2)
-    }
     !settings.silent && settings.debug ? console.log(err) : error(err)
     err instanceof InterceptorException && Deno.exit()
   }

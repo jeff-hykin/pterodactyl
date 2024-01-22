@@ -1,41 +1,22 @@
-const { args } = Deno
-import * as Path from "https://deno.land/std@0.128.0/path/mod.ts"
 import {
-  parse,
   acceptWebSocket,
-  serve,
-  Server,
-  serveTLS,
   ServerRequest,
   posix,
 } from './deps.ts'
 
 /* Archaeopteryx utils */
 import {
-  isValidArg,
-  printHelp,
   readFile,
-  isWebSocket,
   appendReloadScript,
-  printStart,
-  printRequest,
   error,
-  isValidPort,
   inject404,
   setHeaders,
   encode,
-  decode,
-  info,
-  prompt,
   joinPath,
   DirEntry,
-  pipe,
 } from './utils/utils.ts'
 
-import { html, css, logo } from './utils/boilerplate.ts'
-import { getNetworkAddr } from './utils/local-ip.ts'
 import dirTemplate from './directory.ts'
-import { InterceptorException } from './utils/errors.ts'
 
 
 // is caught
@@ -60,6 +41,49 @@ export const handleFileRequest = async (settings: any, req: ServerRequest) => {
 }
 
 // is caught
+export const handleDirRequest = async (settings: any, req: ServerRequest): Promise<void> => {
+  const path = joinPath(settings.root, unescape(req.url))
+  const dirUrl = `/${posix.relative(settings.root, path)}`
+  const entries: DirEntry[] = []
+  for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
+    const filePath = posix.join(dirUrl, '/', entry.name)
+    entries.push({ ...entry, url: decodeURIComponent(filePath) })
+  }
+
+  await req.respond({
+    status: 200,
+    body: encode(dirTemplate(entries, dirUrl)),
+    headers: setHeaders(settings.cors),
+  })
+}
+
+export const handleFileOrFolderRequest = async (settings: any, req: ServerRequest): Promise<void> => {
+  const path = joinPath(settings.root, unescape(req.url))
+  let itemInfo
+  
+  try {
+    itemInfo = await Deno.stat(path);
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      return await handleNotFound(settings, req);
+    } else {
+      throw err;
+    }
+  }
+
+  if (!itemInfo.isDirectory) {
+    return await handleFileRequest(settings, req)
+  } else {
+    if (settings.dontList) {
+      // is caught
+      return await handleNotFound(settings, req)
+    } else {
+      return await handleDirRequest(settings, req)
+    }
+  }
+}
+
+// is caught
 export const handleRouteRequest = async (settings: any, req: ServerRequest): Promise<void> => {
   try {
     const file = await readFile(`${settings.root}/${settings.entryPoint}`)
@@ -77,23 +101,6 @@ export const handleRouteRequest = async (settings: any, req: ServerRequest): Pro
     // is caught
     await handleDirRequest(settings, req)
   }
-}
-
-// is caught
-export const handleDirRequest = async (settings: any, req: ServerRequest): Promise<void> => {
-  const path = joinPath(settings.root, unescape(req.url))
-  const dirUrl = `/${posix.relative(settings.root, path)}`
-  const entries: DirEntry[] = []
-  for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
-    const filePath = posix.join(dirUrl, '/', entry.name)
-    entries.push({ ...entry, url: decodeURIComponent(filePath) })
-  }
-
-  await req.respond({
-    status: 200,
-    body: encode(dirTemplate(entries, dirUrl)),
-    headers: setHeaders(settings.cors),
-  })
 }
 
 let watcher = null as null|Deno.FsWatcher
