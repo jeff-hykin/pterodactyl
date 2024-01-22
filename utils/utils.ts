@@ -99,7 +99,7 @@ export const pipe =
       throw new Error('Expected at least one argument function')
     }
     return fns.reduce(
-      (prevFn, nextFn) => prevFn.then(nextFn),
+      (prevFn: any, nextFn) => prevFn.then(nextFn),
       Promise.resolve(arg)
     )
   }
@@ -162,8 +162,11 @@ export const printStart = (
   )
 }
 
-export const error = (msg: string) => {
-  console.log(`${bold(red(`\nERROR: ${msg}`))}`)
+export const error = (err: any) => {
+  if (err.stack) {
+    console.error(`err.stack is:`,err.stack)
+  } 
+  console.error(`${bold(red(`\nERROR: ${err?.message||err}`))}`)
 }
 
 export const warn = (msg: string) => {

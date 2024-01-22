@@ -246,6 +246,7 @@ test('before intercepts requests', async (): Promise<void> => {
     await res.text()
     assertEquals(res.status, 200)
   } finally {
+    await tearDown()
   }
 })
 
