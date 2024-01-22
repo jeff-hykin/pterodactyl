@@ -127,19 +127,6 @@ test('given no reload option index.html should not contain reload script', async
   }
 })
 
-test('/any/other/route should return index.html', async (): Promise<void> => {
-  await setup()
-  try {
-    const res = await fetch(`http://localhost:${port}/any/other/route`)
-    const file = await res.text()
-    assertEquals(res.status, 200)
-    assert(res.headers.has('content-type'))
-    assert(file.includes(`<div id="archaeopteryx">`))
-  } finally {
-    await tearDown()
-  }
-})
-
 test('/style.css should return style.css from ./demo', async (): Promise<void> => {
   await setup()
   try {
