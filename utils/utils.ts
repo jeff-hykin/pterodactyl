@@ -4,27 +4,6 @@ import notFound from '../404.ts'
 
 /* CLI Utils */
 
-export const isValidArg = (arg: string): boolean => {
-  const args = [
-    '_',
-    'h',
-    'n',
-    's',
-    'd',
-    'p',
-    't',
-    'c',
-    'l',
-    'allowAbsolute',
-    'keyFile',
-    'certFile',
-    'entry',
-    'before',
-    'after',
-  ]
-  return args.includes(arg)
-}
-
 export const isValidPort = (port: any): boolean =>
   port >= 1 && port <= 65535 && Number.isInteger(port)
 
@@ -133,17 +112,12 @@ export const printHelp = (): void => {
 export const printStart = (
   root: string,
   port: number,
-  networkAddrs: any,
+  networkAddr: any,
   secure?: boolean
 ): void => {
   const tcp = secure ? 'https' : 'http'
   
   let networkString = ""
-  if (networkAddrs instanceof Array) {
-    for (const networkAddr of networkAddrs) {
-        networkString += `      ${bold('Network:')}    ${tcp}://${networkAddr}:${port}\n`
-    }
-  }
   // no network
   if (networkString == "") {
     networkString = `      ${bold('Network:')}    Could not resolve network address\n`
@@ -153,9 +127,8 @@ export const printStart = (
     `\n
   ${bold(green('🦕  🚚 Archaeopteryx'))}
 
-  Now serving ${bold(root)}:
-
-      ${bold('Local:')}      ${tcp}://localhost:${port}\n${networkString}
+  Now serving ${bold(JSON.stringify(root))}:
+    ${green(`${tcp}://${networkAddr}:${port}\n`)}
   `
   )
 }

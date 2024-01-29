@@ -23,7 +23,6 @@ async function setup(args?: Args): Promise<void> {
 
   args && args.c && cmd.push('-c')
   args && args.n && cmd.push('-n')
-  args && args.l && cmd.push('-l')
   args && args.before && cmd.push(`--before=${args.before}`)
 
   if (args && args.p) {
@@ -87,8 +86,8 @@ test('handleRouteRequest should return index.html', async (): Promise<void> => {
   }
 })
 
-test('handleDirRequest should return a directory if list is true', async (): Promise<void> => {
-  await setup({ _: ['./demo'], l: true })
+test('handleDirRequest should return a directory', async (): Promise<void> => {
+  await setup({ _: ['./demo'], })
   try {
     const res = await fetch(`http://localhost:${port}/src`)
     const file = await res.text()
@@ -242,7 +241,7 @@ test({
 })
 
 test('before intercepts requests', async (): Promise<void> => {
-  await setup({ _: ['./demo'], l: true, before: 'before.ts' })
+  await setup({ _: ['./demo'], before: 'before.ts' })
   try {
     const res = await fetch(`http://localhost:${port}`)
     await res.text()

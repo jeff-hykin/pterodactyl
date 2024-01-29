@@ -2,7 +2,6 @@ import { assertEquals, assert } from './deps.ts'
 import {
   contentType,
   isValidPort,
-  isValidArg,
   readFile,
   pipe,
 } from './utils/utils.ts'
@@ -42,16 +41,6 @@ Deno.test('isValidPort', () => {
 
 Deno.test('isValidPort', () => {
   const valid = isValidPort(false)
-  assertEquals(valid, false)
-})
-
-Deno.test('isValidArg', () => {
-  const valid = isValidArg('n')
-  assertEquals(valid, true)
-})
-
-Deno.test('isValidArg', () => {
-  const valid = isValidArg('b')
   assertEquals(valid, false)
 })
 

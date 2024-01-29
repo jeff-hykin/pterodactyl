@@ -67,19 +67,19 @@ $ archy ./demo
 Archaeopteryx comes with a couple of options to customize your experience.
 
 ```s
--h                 # Help
--n                 # Disable live reload - Defaults to false
--s                 # Disable all output - Defaults to false
--p <PORT>          # Specify desired port - Defaults to 8080
--d                 # Debug for more verbose output - Defaults to false
--t                 # Use HTTPS - Requires a trusted self-signed certificate
--f                 # Files only (won't list directories)
--c                 # Use CORS - Defaults to false
---before=<..>   # Before request Interceptor(s)
---after=<..>    # After request Interceptor(s)
+--help           # Help
+--debug          # Debug for more verbose output - Defaults to false
+--noReload       # Disable live reload - Defaults to false
+--secure         
+--filesOnly      # no directories (obviously)
+--cors           # Use CORS - Defaults to false
+--silent         # Disable all output - Defaults to false
+--port <PORT>    # Specify desired port - Defaults to 8080
 --certFile=<..>    # Specify certificate file - Defaults to archaeopteryx.crt
 --keyFile=<..>     # Specify key file - Defaults to archaeopteryx.key
 --entry=<..>       # Specify optional entrypoint - Defaults to index.html
+--before=<..>   # Before request Interceptor(s)
+--after=<..>    # After request Interceptor(s)
 ```
 
 ### Directory Listing

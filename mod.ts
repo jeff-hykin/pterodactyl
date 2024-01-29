@@ -1,7 +1,10 @@
-const { args } = Deno
+import { ensure } from 'https://deno.land/x/ensure/mod.ts'
+
+ensure({
+  denoVersion: "1.28.0", // for Deno.networkInterfaces
+})
 import * as Path from "https://deno.land/std@0.128.0/path/mod.ts"
 import {
-  parse,
   acceptWebSocket,
   serve,
   Server,
@@ -9,10 +12,11 @@ import {
   ServerRequest,
   posix,
 } from './deps.ts'
+import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
+import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString, regex, findAll, iterativelyFindAll, escapeRegexMatch, escapeRegexReplace, extractFirst, isValidIdentifier, removeCommonPrefix, didYouMean } from "https://deno.land/x/good@1.6.0.0/string.js"
 
 /* Archaeopteryx utils */
 import {
-  isValidArg,
   printHelp,
   readFile,
   isWebSocket,
@@ -33,13 +37,13 @@ import {
 } from './utils/utils.ts'
 
 import { html, css, logo } from './utils/boilerplate.ts'
-import { getNetworkAddr } from './utils/local-ip.ts'
 import dirTemplate from './directory.ts'
 import { InterceptorException } from './utils/errors.ts'
 
 type ArchaeopteryxOptions = {
   root?: string
   port?: number
+  hostname?: string | null
   silent?: boolean
   disableReload?: boolean
   debug?: boolean
@@ -61,6 +65,7 @@ type Interceptor = (r: ServerRequest) => ServerRequest
 const settings: any = {
   root: '.',
   port: 8080,
+  hostname: null,
   debug: false,
   silent: false,
   disableReload: false,
@@ -78,6 +83,9 @@ const settings: any = {
 
 import * as handlers from "./handlers.ts"
 const router = async (req: ServerRequest): Promise<void> => {
+  if (settings.debug) {
+      console.log(`req is:`,req)
+  }
   try {
     if (!(req instanceof ServerRequest)) {
       throw new InterceptorException()
@@ -129,6 +137,7 @@ const startListener = async (
 
 const setGlobals = async (args: ArchaeopteryxOptions): Promise<void> => {
   settings.root = args.root ?? '.'
+  settings.hostname = args.hostname
   settings.help = args.help ?? false
   settings.debug = args.debug ?? false
   settings.silent = args.silent ?? false
@@ -227,6 +236,16 @@ const main = async (args?: ArchaeopteryxOptions): Promise<Server> => {
 
   const pathToCert = Path.isAbsolute(settings.certFile) ? settings.certFile : `${settings.root}/${settings.certFile}`
   const pathToKey  = Path.isAbsolute(settings.keyFile)  ? settings.keyFile  : `${settings.root}/${settings.keyFile}`
+  //   
+  // get hostname
+  //   
+  const ipAddresses = Deno.networkInterfaces().filter((each:any)=>each.family=="IPv4").map((each:any)=>each.address)
+  if (!settings.hostname && settings.secure && ipAddresses.some(each=>each!="127.0.0.1")) {
+    settings.hostname = ipAddresses.filter(each=>each!="127.0.0.1")[0]
+  } else if (!settings.hostname) {
+    settings.hostname = ipAddresses[0]
+  }
+  printStart(settings.root, settings.port, settings.hostname, settings.secure)
   // In certain browsers the server will crash if Self-signed certificates are not allowed.
   // Ref: https://github.com/denoland/deno/issues/5760
   const server = settings.secure
@@ -234,48 +253,57 @@ const main = async (args?: ArchaeopteryxOptions): Promise<Server> => {
         port: settings.port,
         certFile: pathToCert,
         keyFile: pathToKey,
+        hostname: settings.hostname,
       })
-    : serve({ port: settings.port })
+    : serve({ port: settings.port, hostname: settings.hostname })
     
-  const maybeInterfacesFunction:any = eval("Deno.networkInterfaces")
-  if (!(maybeInterfacesFunction instanceof Function)) {
-    const { getNetworkAddr } = await import('./utils/local-ip.ts')
-    const networkAddr = await getNetworkAddr()
-    printStart(settings.root, settings.port, [networkAddr], settings.secure)
-  } else {
-    const ipAddresses = maybeInterfacesFunction().filter((each:any)=>each.family=="IPv4").map((each:any)=>each.address)
-    printStart(settings.root, settings.port, ipAddresses, settings.secure)
-  }
-  
   startListener(server, router)
   return server
 }
 
 if (import.meta.main) {
-  const parsedArgs = parse(args, {
+  var argOptions = {
+    boolean: [
+      "h", "help",
+      "d", "debug",
+      "n", "noReload",
+      "t", "secure",
+      "f", "filesOnly",
+      "c", "cors",
+      "s", "silent",
+      "allowAbsolute",
+    ],
     default: {
-      d: false,
-      s: false,
-      n: false,
-      p: 8080,
-      t: false,
-      c: false,
-      l: false,
-      allowAbsolute: false,
+      p: undefined,
+      port: undefined,
       certFile: 'archaeopteryx.crt',
       keyFile: 'archaeopteryx.key',
       entry: 'index.html',
     },
-  })
-
-  Object.keys(parsedArgs).map((arg: string) => {
-    if (!isValidArg(arg)) {
-      error(`${arg} is not a valid arg.`)
-      printHelp()
-      Deno.exit()
+  }
+  const parsedArgs = parse(Deno.args, argOptions)
+  parsedArgs.h = parsedArgs.h || parsedArgs.help
+  parsedArgs.d = parsedArgs.d || parsedArgs.debug
+  parsedArgs.n = parsedArgs.n || parsedArgs.noReload
+  parsedArgs.t = parsedArgs.t || parsedArgs.secure
+  parsedArgs.f = parsedArgs.f || parsedArgs.filesOnly
+  parsedArgs.c = parsedArgs.c || parsedArgs.cors
+  parsedArgs.s = parsedArgs.s || parsedArgs.silent
+  parsedArgs.p = parsedArgs.p ?? parsedArgs.port
+  
+  // validate
+  const validWords = argOptions.boolean.concat(Object.keys(argOptions.default))
+  for (const each of Object.keys(parsedArgs)) {
+    if (each == "_") {
+        continue
     }
-  })
-
+    try {
+      didYouMean({ givenWord:each, possibleWords: validWords, autoThrow:true })
+    } catch (error) {
+      printHelp()
+      Deno.exit(1)
+    }
+  }
 
   await setGlobals({
     root: parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.',
