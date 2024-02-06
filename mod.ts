@@ -98,7 +98,7 @@ const router = async (req: ServerRequest): Promise<void> => {
       // is caught
       return await handlers.handleRouteRequest(settings, req)
     } else {
-      handlers.handleFileOrFolderRequest(settings, req);
+      await handlers.handleFileOrFolderRequest(settings, req);
     }
   } catch (err) {
     !settings.silent && settings.debug ? console.log(err) : error(err)
