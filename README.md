@@ -29,7 +29,7 @@ A fork of Denoliver, which is a small, zero config dev & static file server with
 # How do I install it?
 
 ```sh
-deno install -n archy -A https://deno.land/x/archaeopteryx/mod.ts
+deno install --global -n archy -Af https://deno.land/x/archaeopteryx/mod.ts
 ```
 
 Alternatively, list each permission:
