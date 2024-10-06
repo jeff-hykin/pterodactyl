@@ -31,6 +31,14 @@ export const handleFileRequest = async (settings: any, req: ServerRequest, path:
       status: 200,
       headers: setHeaders(settings.cors, path),
       body: file,
+    }).catch(err=>{
+        if (`${err}`=="BrokenPipe: Broken pipe (os error 32)") {
+            if (!settings.cors) {
+                console.warn(`There may have been a CORS issue. Try setting the --cors flag if you're having problems.`)
+            }
+            return
+        }
+        throw err
     })
   } catch (err) {
     !settings.silent && settings.debug ? console.error(err) : error(err)
