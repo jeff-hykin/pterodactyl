@@ -123,7 +123,10 @@ export const handleRouteRequest = async (settings: any, req: ServerRequest): Pro
         : appendReloadScript(file, port, hostname, settings.secure),
     })
   } catch (err) {
-    !settings.silent && settings.debug ? console.error(err) : error(err)
+    const expectedError = `${err?.message}`.startsWith("No such file or directory (os error 2): readfile './index.html'")
+    if (!expectedError) {
+      !settings.silent && settings.debug ? console.error(err) : error(err)
+    }
     // is caught
     const path = joinPath(settings.root, unescape(req.url))
     await handleDirRequest(settings, req, path)
